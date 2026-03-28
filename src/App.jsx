@@ -16,28 +16,35 @@ function App() {
     'Authorization': `Bearer ${token()}`,
   });
 
+  const fetchTransactions = async () => {
+    try {
+      const res = await fetch('/api/transactions', {
+        headers: { 'Authorization': `Bearer ${token()}` },
+      });
+      if (!res.ok) {
+        if (res.status === 401) {
+          localStorage.removeItem('token');
+          setUser(null);
+        }
+        return;
+      }
+      const data = await res.json();
+      setTransactions(data);
+    } catch {
+      // Network error — stay on current state
+    }
+  };
+
   useEffect(() => {
     const savedToken = token();
     if (!savedToken) return;
-    // Validate token by fetching transactions
-    fetch('/api/transactions', { headers: { 'Authorization': `Bearer ${savedToken}` } })
-      .then(res => {
-        if (!res.ok) { localStorage.removeItem('token'); return; }
-        return res.json();
-      })
-      .then(data => {
-        if (data) {
-          setTransactions(data);
-          setUser({ loggedIn: true });
-        }
-      });
+    setUser({ loggedIn: true });
+    fetchTransactions();
   }, []);
 
   const handleLogin = (userData) => {
     setUser(userData);
-    fetch('/api/transactions', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
-      .then(res => res.json())
-      .then(data => setTransactions(data));
+    fetchTransactions();
   };
 
   const handleLogout = () => {
@@ -47,21 +54,31 @@ function App() {
   };
 
   const handleAdd = async (transaction) => {
-    const res = await fetch('/api/transactions', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify(transaction),
-    });
-    const newTransaction = await res.json();
-    setTransactions(prev => [...prev, newTransaction]);
+    try {
+      const res = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(transaction),
+      });
+      if (!res.ok) return;
+      const newTransaction = await res.json();
+      setTransactions(prev => [...prev, newTransaction]);
+    } catch {
+      // Network error
+    }
   };
 
   const handleDelete = async (id) => {
-    await fetch(`/api/transactions/${id}`, {
-      method: 'DELETE',
-      headers: authHeaders(),
-    });
-    setTransactions(prev => prev.filter(t => t.id !== id));
+    try {
+      const res = await fetch(`/api/transactions/${id}`, {
+        method: 'DELETE',
+        headers: authHeaders(),
+      });
+      if (!res.ok) return;
+      setTransactions(prev => prev.filter(t => t.id !== id));
+    } catch {
+      // Network error
+    }
   };
 
   if (!user) return <AuthPage onLogin={handleLogin} />;

@@ -13,21 +13,25 @@ function AuthPage({ onLogin }) {
     e.preventDefault();
     setError('');
 
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || 'Something went wrong');
-      return;
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Something went wrong');
+        return;
+      }
+
+      localStorage.setItem('token', data.token);
+      onLogin(data.user);
+    } catch {
+      setError('Network error. Please try again.');
     }
-
-    localStorage.setItem('token', data.token);
-    onLogin(data.user);
   };
 
   return (
