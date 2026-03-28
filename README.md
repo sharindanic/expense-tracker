@@ -2,6 +2,14 @@
 
 A full-stack personal finance tracker. Track income and expenses, view a live balance summary, filter by category, and manage your data with a secure account.
 
+## Screenshots
+
+<!-- Login page -->
+![Login](docs/screenshots/login.png)
+
+<!-- Dashboard with transactions -->
+![Dashboard](docs/screenshots/dashboard.png)
+
 ## Tech Stack
 
 **Frontend**
