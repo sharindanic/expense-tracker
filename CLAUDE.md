@@ -15,12 +15,24 @@ No test runner is configured.
 
 ## Architecture
 
-Single-page React 19 app built with Vite. All logic lives in one component: `src/App.jsx`.
+Single-page React 19 app built with Vite, split into four components:
 
-**State** (all in `App.jsx` via `useState`):
-- `transactions` — array of `{ id, description, amount, type, category, date }`
-- Form inputs: `description`, `amount`, `type`, `category`
-- Filters: `filterType`, `filterCategory`
+```
+App.jsx
+├── Summary.jsx
+├── TransactionForm.jsx
+└── TransactionList.jsx
+```
+
+**`App.jsx`** — holds `transactions` state (array of `{ id, description, amount, type, category, date }`) and passes it down. Only entry point for mutating the list via `handleAdd`.
+
+**`Summary.jsx`** — receives `transactions`, computes `totalIncome`, `totalExpenses`, and `balance` internally.
+
+**`TransactionForm.jsx`** — owns all form state (`description`, `amount`, `type`, `category`). Calls `onAdd(transaction)` prop on submit.
+
+**`TransactionList.jsx`** — receives `transactions`, owns filter state (`filterType`, `filterCategory`) internally.
+
+The `categories` constant is duplicated in `TransactionForm` and `TransactionList` — not yet extracted to a shared location.
 
 **Data flow:** client-side only, no backend, no persistence — data resets on refresh.
 
@@ -28,7 +40,5 @@ Single-page React 19 app built with Vite. All logic lives in one component: `src
 
 ## Known Issues (intentional — this is a course starter)
 
-- `amount` values are stored as strings but used as numbers in calculations (causes incorrect totals)
 - Delete button has CSS (`.delete-btn`) but no implementation
 - No input validation or error handling
-- All code is in a single `App.jsx` with no component extraction
