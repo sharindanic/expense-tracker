@@ -24,7 +24,7 @@ function TransactionList({ transactions, onDelete }) {
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-2">
           <CardTitle className="text-base">Transactions</CardTitle>
-          <div className="flex gap-2">
+          <div className="flex gap-2" data-testid="filters">
             <Select value={filterType} onValueChange={setFilterType}>
               <SelectTrigger className="w-32">
                 <SelectValue />
