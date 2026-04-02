@@ -1,9 +1,13 @@
+import { useRef } from 'react';
+import { toPng } from 'html-to-image';
 import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   LineChart, Line,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
 
 const CATEGORY_COLORS = {
   food:          '#f97316',
@@ -18,6 +22,38 @@ const CATEGORY_COLORS = {
 function formatMonth(dateStr) {
   const [year, month] = dateStr.split('-');
   return new Date(year, month - 1).toLocaleString('default', { month: 'short', year: '2-digit' });
+}
+
+function downloadPng(ref, filename) {
+  if (!ref.current) return;
+  toPng(ref.current, { backgroundColor: '#ffffff' })
+    .then((dataUrl) => {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = dataUrl;
+      link.click();
+    });
+}
+
+function ChartCard({ title, filename, children }) {
+  const ref = useRef(null);
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+          <Button variant="ghost" size="sm" onClick={() => downloadPng(ref, filename)}>
+            <Download className="w-4 h-4 mr-1" /> PNG
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div ref={ref} className="bg-white">
+          {children}
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 function SpendingByCategory({ transactions }) {
@@ -64,7 +100,7 @@ function IncomeVsExpensesByMonth({ transactions }) {
 
   const monthMap = {};
   transactions.forEach(t => {
-    const month = t.date.slice(0, 7); // "YYYY-MM"
+    const month = t.date.slice(0, 7);
     if (!monthMap[month]) monthMap[month] = { month, income: 0, expenses: 0 };
     if (t.type === 'income') monthMap[month].income += parseFloat(t.amount);
     else monthMap[month].expenses += parseFloat(t.amount);
@@ -129,36 +165,41 @@ function BalanceOverTime({ transactions }) {
   );
 }
 
+function downloadCsv(transactions) {
+  const headers = ['Date', 'Description', 'Type', 'Category', 'Amount'];
+  const rows = transactions
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map(t => [t.date, `"${t.description}"`, t.type, t.category, parseFloat(t.amount).toFixed(2)]);
+
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const link = document.createElement('a');
+  link.download = 'transactions.csv';
+  link.href = URL.createObjectURL(blob);
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
 function Analytics({ transactions }) {
   return (
     <div className="space-y-4 mb-6">
-      <h2 className="text-base font-semibold">Analytics</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Spending by Category</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <SpendingByCategory transactions={transactions} />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Income vs Expenses by Month</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <IncomeVsExpensesByMonth transactions={transactions} />
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-semibold">Analytics</h2>
+        <Button variant="outline" size="sm" onClick={() => downloadCsv(transactions)} disabled={transactions.length === 0}>
+          <Download className="w-4 h-4 mr-1" /> Export CSV
+        </Button>
       </div>
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Balance Over Time</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <BalanceOverTime transactions={transactions} />
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ChartCard title="Spending by Category" filename="spending-by-category.png">
+          <SpendingByCategory transactions={transactions} />
+        </ChartCard>
+        <ChartCard title="Income vs Expenses by Month" filename="income-vs-expenses.png">
+          <IncomeVsExpensesByMonth transactions={transactions} />
+        </ChartCard>
+      </div>
+      <ChartCard title="Balance Over Time" filename="balance-over-time.png">
+        <BalanceOverTime transactions={transactions} />
+      </ChartCard>
     </div>
   );
 }
