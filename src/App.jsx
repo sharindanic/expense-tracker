@@ -3,11 +3,13 @@ import { Button } from '@/components/ui/button';
 import Summary from './Summary';
 import TransactionForm from './TransactionForm';
 import TransactionList from './TransactionList';
+import Analytics from './Analytics';
 import AuthPage from './AuthPage';
 
 function App() {
   const [user, setUser] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [view, setView] = useState('dashboard');
 
   const token = () => localStorage.getItem('token');
 
@@ -91,11 +93,31 @@ function App() {
             <h1 className="text-2xl font-bold">Finance Tracker</h1>
             <p className="text-muted-foreground">Track your income and expenses</p>
           </div>
-          <Button variant="outline" onClick={handleLogout}>Logout</Button>
+          <div className="flex gap-2">
+            <Button
+              variant={view === 'dashboard' ? 'default' : 'outline'}
+              onClick={() => setView('dashboard')}
+            >
+              Dashboard
+            </Button>
+            <Button
+              variant={view === 'analytics' ? 'default' : 'outline'}
+              onClick={() => setView('analytics')}
+            >
+              Analytics
+            </Button>
+            <Button variant="outline" onClick={handleLogout}>Logout</Button>
+          </div>
         </div>
         <Summary transactions={transactions} />
-        <TransactionForm onAdd={handleAdd} />
-        <TransactionList transactions={transactions} onDelete={handleDelete} />
+        {view === 'dashboard' ? (
+          <>
+            <TransactionForm onAdd={handleAdd} />
+            <TransactionList transactions={transactions} onDelete={handleDelete} />
+          </>
+        ) : (
+          <Analytics transactions={transactions} />
+        )}
       </div>
     </div>
   );
