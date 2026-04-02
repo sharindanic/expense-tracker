@@ -42,19 +42,10 @@ jobs:
         run: npm ci
 
       - name: Run database migrations
-        run: npm run db:migrate
+        run: npx prisma migrate deploy
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
-
-      - name: Start dev server
-        run: npm run dev &
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/expense_tracker
-          JWT_SECRET: ci_test_secret
-
-      - name: Wait for servers to be ready
-        run: npx wait-on http://localhost:5173 http://localhost:3000 --timeout 30000
 
       - name: Run Playwright tests
         run: npm test
