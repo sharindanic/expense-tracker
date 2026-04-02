@@ -16,6 +16,7 @@ A full-stack personal finance tracker. Track income and expenses, view a live ba
 - React 19 + Vite 7
 - Tailwind CSS v4
 - shadcn/ui components
+- Recharts (analytics charts)
 
 **Backend**
 - Node.js + Express 5
@@ -34,6 +35,7 @@ A full-stack personal finance tracker. Track income and expenses, view a live ba
 - Filter transactions by type and category
 - Delete transactions with confirmation
 - Data persists in PostgreSQL database
+- Analytics dashboard with spending by category (donut chart), income vs expenses by month (bar chart), and balance over time (line chart)
 
 ## Getting Started
 
@@ -96,6 +98,7 @@ npm run test:ui       # Open Playwright UI
 │   ├── Summary.jsx           # Income / expense / balance cards
 │   ├── TransactionForm.jsx   # Add transaction form
 │   ├── TransactionList.jsx   # Filterable transaction table
+│   ├── Analytics.jsx         # Charts dashboard (recharts)
 │   └── components/ui/        # shadcn/ui components
 ├── tests/
 │   ├── auth.spec.js          # Auth E2E tests
