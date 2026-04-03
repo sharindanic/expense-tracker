@@ -4,11 +4,7 @@ A full-stack personal finance tracker. Track income and expenses, view a live ba
 
 ## Screenshots
 
-<!-- Login page -->
-![Login](docs/screenshots/login.png)
-
-<!-- Dashboard with transactions -->
-![Dashboard](docs/screenshots/dashboard.png)
+## ss will be added later 
 
 ## Tech Stack
 
