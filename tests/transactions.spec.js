@@ -59,8 +59,8 @@ test.describe('Transactions', () => {
     await page.getByRole('button', { name: 'Add' }).click();
     await expect(page.getByText('To be deleted')).toBeVisible();
 
-    page.on('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Delete' }).click();
+    await page.getByRole('button', { name: 'Delete' }).last().click();
 
     await expect(page.getByText('To be deleted')).not.toBeVisible();
   });
