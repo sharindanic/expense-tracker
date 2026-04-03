@@ -52,6 +52,32 @@ app.post('/api/transactions', requireAuth, async (req, res) => {
   }
 });
 
+// PATCH /api/transactions/:id
+app.patch('/api/transactions/:id', requireAuth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: 'Invalid transaction ID' });
+
+    const transaction = await prisma.transaction.findFirst({ where: { id, userId: req.userId } });
+    if (!transaction) return res.status(404).json({ error: 'Transaction not found' });
+
+    const { description, amount, type, category, date } = req.body;
+    const updated = await prisma.transaction.update({
+      where: { id },
+      data: {
+        ...(description && { description }),
+        ...(amount && { amount: parseFloat(amount) }),
+        ...(type && { type }),
+        ...(category && { category }),
+        ...(date && { date }),
+      },
+    });
+    res.json(updated);
+  } catch {
+    res.status(500).json({ error: 'Failed to update transaction' });
+  }
+});
+
 // DELETE /api/transactions/:id
 app.delete('/api/transactions/:id', requireAuth, async (req, res) => {
   try {

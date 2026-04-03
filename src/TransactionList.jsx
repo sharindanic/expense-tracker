@@ -1,17 +1,24 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 
 const categories = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
 
-function TransactionList({ transactions, onDelete }) {
+function TransactionList({ transactions, onDelete, onEdit }) {
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [confirmId, setConfirmId] = useState(null);
+  const [editTransaction, setEditTransaction] = useState(null);
+
+  const handleEditSave = () => {
+    onEdit(editTransaction);
+    setEditTransaction(null);
+  };
 
   let filteredTransactions = transactions;
   if (filterType !== "all") {
@@ -77,14 +84,23 @@ function TransactionList({ transactions, onDelete }) {
                     {t.type === "income" ? "+" : "-"}${parseFloat(t.amount).toFixed(2)}
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => setConfirmId(t.id)}
-                    >
-                      Delete
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditTransaction({ ...t })}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => setConfirmId(t.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -93,6 +109,57 @@ function TransactionList({ transactions, onDelete }) {
         )}
       </CardContent>
 
+      {/* Edit modal */}
+      <Dialog open={editTransaction !== null} onOpenChange={(open) => { if (!open) setEditTransaction(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Transaction</DialogTitle>
+          </DialogHeader>
+          {editTransaction && (
+            <div className="space-y-3">
+              <Input
+                value={editTransaction.description}
+                onChange={e => setEditTransaction(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Description"
+              />
+              <Input
+                type="number"
+                value={editTransaction.amount}
+                onChange={e => setEditTransaction(prev => ({ ...prev, amount: e.target.value }))}
+                placeholder="Amount"
+                min="0"
+                step="0.01"
+              />
+              <Select value={editTransaction.type} onValueChange={val => setEditTransaction(prev => ({ ...prev, type: val }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="income">Income</SelectItem>
+                  <SelectItem value="expense">Expense</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={editTransaction.category} onValueChange={val => setEditTransaction(prev => ({ ...prev, category: val }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {categories.map(cat => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                type="date"
+                value={editTransaction.date}
+                onChange={e => setEditTransaction(prev => ({ ...prev, date: e.target.value }))}
+              />
+            </div>
+          )}
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
+            <Button onClick={handleEditSave}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation modal */}
       <Dialog open={confirmId !== null} onOpenChange={(open) => { if (!open) setConfirmId(null); }}>
         <DialogContent showCloseButton={false}>
           <DialogHeader>

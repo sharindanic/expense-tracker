@@ -94,6 +94,25 @@ function App() {
     }
   };
 
+  const handleEdit = async (transaction) => {
+    try {
+      const res = await fetch(`/api/transactions/${transaction.id}`, {
+        method: 'PATCH',
+        headers: authHeaders(),
+        body: JSON.stringify(transaction),
+      });
+      if (!res.ok) {
+        toast.error('Failed to update transaction. Please try again.');
+        return;
+      }
+      const updated = await res.json();
+      setTransactions(prev => prev.map(t => t.id === updated.id ? updated : t));
+      toast.success('Transaction updated.');
+    } catch {
+      toast.error('Could not reach the server. Check your connection.');
+    }
+  };
+
   const handleSaveBudget = async ({ category, amount }) => {
     try {
       const res = await fetch('/api/budgets', {
@@ -189,7 +208,7 @@ function App() {
               onSave={handleSaveBudget}
               onDelete={handleDeleteBudget}
             />
-            <TransactionList transactions={transactions} onDelete={handleDelete} />
+            <TransactionList transactions={transactions} onDelete={handleDelete} onEdit={handleEdit} />
           </>
         ) : (
           <Analytics transactions={transactions} />
