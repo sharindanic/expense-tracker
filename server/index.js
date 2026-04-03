@@ -68,6 +68,49 @@ app.delete('/api/transactions/:id', requireAuth, async (req, res) => {
   }
 });
 
+// GET /api/budgets
+app.get('/api/budgets', requireAuth, async (req, res) => {
+  try {
+    const budgets = await prisma.budget.findMany({ where: { userId: req.userId } });
+    res.json(budgets);
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch budgets' });
+  }
+});
+
+// POST /api/budgets — create or update
+app.post('/api/budgets', requireAuth, async (req, res) => {
+  try {
+    const { category, amount } = req.body;
+    if (!category || !amount) return res.status(400).json({ error: 'Category and amount required' });
+
+    const budget = await prisma.budget.upsert({
+      where: { userId_category: { userId: req.userId, category } },
+      update: { amount: parseFloat(amount) },
+      create: { category, amount: parseFloat(amount), userId: req.userId },
+    });
+    res.status(201).json(budget);
+  } catch {
+    res.status(500).json({ error: 'Failed to save budget' });
+  }
+});
+
+// DELETE /api/budgets/:id
+app.delete('/api/budgets/:id', requireAuth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: 'Invalid budget ID' });
+
+    const budget = await prisma.budget.findFirst({ where: { id, userId: req.userId } });
+    if (!budget) return res.status(404).json({ error: 'Budget not found' });
+
+    await prisma.budget.delete({ where: { id } });
+    res.status(204).send();
+  } catch {
+    res.status(500).json({ error: 'Failed to delete budget' });
+  }
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err);

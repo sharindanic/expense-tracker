@@ -4,12 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 
 const categories = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
 
 function TransactionList({ transactions, onDelete }) {
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
+  const [confirmId, setConfirmId] = useState(null);
 
   let filteredTransactions = transactions;
   if (filterType !== "all") {
@@ -79,9 +81,7 @@ function TransactionList({ transactions, onDelete }) {
                       variant="ghost"
                       size="sm"
                       className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => {
-                        if (window.confirm("Delete this transaction?")) onDelete(t.id);
-                      }}
+                      onClick={() => setConfirmId(t.id)}
                     >
                       Delete
                     </Button>
@@ -92,6 +92,24 @@ function TransactionList({ transactions, onDelete }) {
           </Table>
         )}
       </CardContent>
+
+      <Dialog open={confirmId !== null} onOpenChange={(open) => { if (!open) setConfirmId(null); }}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Delete transaction?</DialogTitle>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
+            <Button
+              variant="destructive"
+              onClick={() => { onDelete(confirmId); setConfirmId(null); }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

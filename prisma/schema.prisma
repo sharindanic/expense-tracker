@@ -13,6 +13,18 @@ model User {
   password     String
   createdAt    DateTime      @default(now())
   transactions Transaction[]
+  budgets      Budget[]
+}
+
+model Budget {
+  id        Int      @id @default(autoincrement())
+  category  String
+  amount    Float
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, category])
 }
 
 model Transaction {
