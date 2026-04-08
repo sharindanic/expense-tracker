@@ -26,12 +26,15 @@ A full-stack personal finance tracker. Track income and expenses, view a live ba
 ## Features
 
 - Register and login with secure JWT authentication
-- Add income and expense transactions
+- Forgot password flow — get a reset token on screen (no email service required)
+- Add, edit, and delete transactions with confirmation
+- Client-side validation on all forms with inline error messages
 - Live summary of income, expenses, and balance
 - Filter transactions by type and category
-- Delete transactions with confirmation
+- Monthly budget limits with progress bars and over-budget warnings
 - Data persists in PostgreSQL database
 - Analytics dashboard with spending by category (donut chart), income vs expenses by month (bar chart), and balance over time (line chart)
+- Export transactions to CSV and charts to PNG
 
 ## Getting Started
 
@@ -81,20 +84,21 @@ npm run test:ui       # Open Playwright UI
 
 ```
 ├── server/
-│   ├── index.js              # Express app and routes
+│   ├── index.js              # Express app and all API routes
 │   ├── middleware/auth.js    # JWT verification middleware
-│   └── routes/auth.js        # Register and login endpoints
+│   └── routes/auth.js        # Register, login, forgot/reset password endpoints
 ├── prisma/
-│   ├── schema.prisma         # User and Transaction models
+│   ├── schema.prisma         # User, Transaction, Budget models
 │   ├── seed.js               # Sample data seeder
 │   └── migrations/           # Database migrations
 ├── src/
 │   ├── App.jsx               # Root component, auth state, API calls
-│   ├── AuthPage.jsx          # Login and register page
+│   ├── AuthPage.jsx          # Login, register, forgot password, reset password
 │   ├── Summary.jsx           # Income / expense / balance cards
-│   ├── TransactionForm.jsx   # Add transaction form
-│   ├── TransactionList.jsx   # Filterable transaction table
-│   ├── Analytics.jsx         # Charts dashboard (recharts)
+│   ├── TransactionForm.jsx   # Add transaction form with validation
+│   ├── TransactionList.jsx   # Filterable transaction table with edit and delete
+│   ├── BudgetManager.jsx     # Monthly budget limits and progress tracking
+│   ├── Analytics.jsx         # Charts dashboard (recharts) + CSV/PNG export
 │   └── components/ui/        # shadcn/ui components
 ├── tests/
 │   ├── auth.spec.js          # Auth E2E tests
@@ -108,6 +112,12 @@ npm run test:ui       # Open Playwright UI
 |--------|----------|------|-------------|
 | POST | `/api/auth/register` | No | Create account |
 | POST | `/api/auth/login` | No | Login, returns JWT |
+| POST | `/api/auth/forgot-password` | No | Generate a password reset token |
+| POST | `/api/auth/reset-password` | No | Reset password using token |
 | GET | `/api/transactions` | Yes | Get user's transactions |
 | POST | `/api/transactions` | Yes | Add transaction |
+| PATCH | `/api/transactions/:id` | Yes | Edit transaction |
 | DELETE | `/api/transactions/:id` | Yes | Delete transaction |
+| GET | `/api/budgets` | Yes | Get user's budgets |
+| POST | `/api/budgets` | Yes | Create or update a budget |
+| DELETE | `/api/budgets/:id` | Yes | Delete a budget |

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { randomBytes } from 'crypto';
 
 export function createAuthRouter(prisma) {
   const router = Router();
@@ -40,6 +41,51 @@ export function createAuthRouter(prisma) {
       res.json({ token, user: { id: user.id, email: user.email } });
     } catch {
       res.status(500).json({ error: 'Login failed' });
+    }
+  });
+
+  // POST /api/auth/forgot-password
+  router.post('/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) return res.status(400).json({ error: 'Email is required' });
+
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (!user) return res.status(404).json({ error: 'No account found with that email' });
+
+      const resetToken = randomBytes(32).toString('hex');
+      const resetExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+      await prisma.user.update({
+        where: { email },
+        data: { resetToken, resetExpiry },
+      });
+
+      res.json({ resetToken });
+    } catch {
+      res.status(500).json({ error: 'Failed to generate reset token' });
+    }
+  });
+
+  // POST /api/auth/reset-password
+  router.post('/reset-password', async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+      if (!token || !newPassword) return res.status(400).json({ error: 'Token and new password are required' });
+
+      const user = await prisma.user.findUnique({ where: { resetToken: token } });
+      if (!user) return res.status(400).json({ error: 'Invalid reset token' });
+      if (user.resetExpiry < new Date()) return res.status(400).json({ error: 'Reset token has expired' });
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { password: hashed, resetToken: null, resetExpiry: null },
+      });
+
+      res.json({ message: 'Password reset successful' });
+    } catch {
+      res.status(500).json({ error: 'Failed to reset password' });
     }
   });
 
