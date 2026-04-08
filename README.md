@@ -26,7 +26,7 @@ A full-stack personal finance tracker. Track income and expenses, view a live ba
 ## Features
 
 - Register and login with secure JWT authentication
-- Forgot password flow — get a reset token on screen (no email service required)
+- Forgot password flow with reset token (no email service required — see note below)
 - Add, edit, and delete transactions with confirmation
 - Client-side validation on all forms with inline error messages
 - Live summary of income, expenses, and balance
@@ -105,6 +105,18 @@ npm run test:ui       # Open Playwright UI
 │   └── transactions.spec.js  # Transaction E2E tests
 └── docker-compose.yml        # PostgreSQL container
 ```
+
+## Password Reset (No Email Required)
+
+Instead of sending a reset link by email, this app shows the reset token directly on screen. This is intentional — it keeps the project simple with zero external services or API keys needed.
+
+Here's how it works:
+1. Click **"Forgot password?"** on the login page and enter your email
+2. A reset token appears on screen — copy it
+3. Paste the token into the reset form along with your new password
+4. Done — the token expires in 15 minutes and is deleted after use so it can't be reused
+
+> In a real production app you would email this token to the user instead of showing it on screen.
 
 ## API Endpoints
 
