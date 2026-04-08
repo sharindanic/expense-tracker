@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,14 @@ function TransactionList({ transactions, onDelete, onEdit }) {
   const [editTransaction, setEditTransaction] = useState(null);
 
   const handleEditSave = () => {
+    if (!editTransaction.description.trim()) {
+      toast.error('Description cannot be empty.');
+      return;
+    }
+    if (!editTransaction.amount || parseFloat(editTransaction.amount) <= 0) {
+      toast.error('Enter a valid amount.');
+      return;
+    }
     onEdit(editTransaction);
     setEditTransaction(null);
   };
@@ -114,6 +123,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Transaction</DialogTitle>
+            <DialogDescription>Update the transaction details below.</DialogDescription>
           </DialogHeader>
           {editTransaction && (
             <div className="space-y-3">

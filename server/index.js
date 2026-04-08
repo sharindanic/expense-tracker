@@ -65,11 +65,11 @@ app.patch('/api/transactions/:id', requireAuth, async (req, res) => {
     const updated = await prisma.transaction.update({
       where: { id },
       data: {
-        ...(description && { description }),
-        ...(amount && { amount: parseFloat(amount) }),
-        ...(type && { type }),
-        ...(category && { category }),
-        ...(date && { date }),
+        ...(description !== undefined && { description }),
+        ...(amount !== undefined && { amount: parseFloat(amount) }),
+        ...(type !== undefined && { type }),
+        ...(category !== undefined && { category }),
+        ...(date !== undefined && { date }),
       },
     });
     res.json(updated);
