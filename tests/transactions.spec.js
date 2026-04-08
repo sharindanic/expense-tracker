@@ -20,7 +20,7 @@ test.describe('Transactions', () => {
   });
 
   test('can add an income transaction', async ({ page }) => {
-    await page.getByPlaceholder('Description').fill('Freelance payment');
+    await page.locator('form').getByPlaceholder('Description').fill('Freelance payment');
     await page.getByPlaceholder('Amount').fill('1500');
 
     await page.locator('form').getByRole('combobox').first().click();
@@ -33,7 +33,7 @@ test.describe('Transactions', () => {
   });
 
   test('can add an expense transaction', async ({ page }) => {
-    await page.getByPlaceholder('Description').fill('Grocery run');
+    await page.locator('form').getByPlaceholder('Description').fill('Grocery run');
     await page.getByPlaceholder('Amount').fill('85');
     await page.getByRole('button', { name: 'Add' }).click();
 
@@ -42,7 +42,7 @@ test.describe('Transactions', () => {
   });
 
   test('summary updates when transaction is added', async ({ page }) => {
-    await page.getByPlaceholder('Description').fill('Salary');
+    await page.locator('form').getByPlaceholder('Description').fill('Salary');
     await page.getByPlaceholder('Amount').fill('3000');
 
     await page.locator('form').getByRole('combobox').first().click();
@@ -54,7 +54,7 @@ test.describe('Transactions', () => {
   });
 
   test('can delete a transaction', async ({ page }) => {
-    await page.getByPlaceholder('Description').fill('To be deleted');
+    await page.locator('form').getByPlaceholder('Description').fill('To be deleted');
     await page.getByPlaceholder('Amount').fill('50');
     await page.getByRole('button', { name: 'Add' }).click();
     await expect(page.getByText('To be deleted')).toBeVisible();
@@ -67,7 +67,7 @@ test.describe('Transactions', () => {
 
   test('can filter by type', async ({ page }) => {
     // Add income
-    await page.getByPlaceholder('Description').fill('My Salary');
+    await page.locator('form').getByPlaceholder('Description').fill('My Salary');
     await page.getByPlaceholder('Amount').fill('2000');
     await page.locator('form').getByRole('combobox').first().click();
     await page.getByRole('option', { name: 'Income' }).click();
@@ -75,7 +75,7 @@ test.describe('Transactions', () => {
     await expect(page.getByText('My Salary')).toBeVisible();
 
     // Add expense
-    await page.getByPlaceholder('Description').fill('My Rent');
+    await page.locator('form').getByPlaceholder('Description').fill('My Rent');
     await page.getByPlaceholder('Amount').fill('800');
     await page.getByRole('button', { name: 'Add' }).click();
     await expect(page.getByText('My Rent')).toBeVisible();
