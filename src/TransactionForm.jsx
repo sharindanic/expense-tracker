@@ -11,14 +11,23 @@ function TransactionForm({ onAdd }) {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("expense");
   const [category, setCategory] = useState("food");
+  const [errors, setErrors] = useState({});
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!description || !amount) return;
 
+    const newErrors = {};
+    if (!description.trim()) newErrors.description = "Description is required.";
+    if (!amount || parseFloat(amount) <= 0) newErrors.amount = "Enter a valid amount greater than zero.";
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     onAdd({
       id: Date.now(),
-      description,
+      description: description.trim(),
       amount: parseFloat(amount),
       type,
       category,
@@ -38,20 +47,26 @@ function TransactionForm({ onAdd }) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="flex gap-2 flex-wrap">
-          <Input
-            type="text"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="flex-[2] min-w-32"
-          />
-          <Input
-            type="number"
-            placeholder="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="flex-1 min-w-24"
-          />
+          <div className="flex flex-col flex-[2] min-w-32">
+            <Input
+              type="text"
+              placeholder="Description"
+              value={description}
+              onChange={(e) => { setDescription(e.target.value); setErrors(prev => ({ ...prev, description: undefined })); }}
+            />
+            {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description}</p>}
+          </div>
+          <div className="flex flex-col flex-1 min-w-24">
+            <Input
+              type="number"
+              placeholder="Amount"
+              value={amount}
+              onChange={(e) => { setAmount(e.target.value); setErrors(prev => ({ ...prev, amount: undefined })); }}
+              min="0.01"
+              step="0.01"
+            />
+            {errors.amount && <p className="text-xs text-red-500 mt-1">{errors.amount}</p>}
+          </div>
           <Select value={type} onValueChange={setType}>
             <SelectTrigger className="flex-1 min-w-28">
               <SelectValue />
