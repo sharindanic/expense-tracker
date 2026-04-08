@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-const categories = ['food', 'housing', 'utilities', 'transport', 'entertainment', 'salary', 'other'];
+import { categories } from '@/lib/categories';
 
 function getMonthSpend(transactions, category) {
   const now = new Date();

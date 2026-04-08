@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { Sun, Moon } from 'lucide-react';
 import { Toaster } from '@/components/ui/sonner';
 import Summary from './Summary';
 import TransactionForm from './TransactionForm';
@@ -10,6 +12,7 @@ import AuthPage from './AuthPage';
 import BudgetManager from './BudgetManager';
 
 function App() {
+  const { resolvedTheme, setTheme } = useTheme();
   const [user, setUser] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
@@ -194,6 +197,13 @@ function App() {
               onClick={() => setView('analytics')}
             >
               Analytics
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            >
+              {resolvedTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
             <Button variant="outline" onClick={handleLogout}>Logout</Button>
           </div>

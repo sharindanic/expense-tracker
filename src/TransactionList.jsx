@@ -7,12 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
-
-const categories = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
+import { categories } from '@/lib/categories';
 
 function TransactionList({ transactions, onDelete, onEdit }) {
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("date-desc");
   const [confirmId, setConfirmId] = useState(null);
   const [editTransaction, setEditTransaction] = useState(null);
 
@@ -36,35 +37,67 @@ function TransactionList({ transactions, onDelete, onEdit }) {
   if (filterCategory !== "all") {
     filteredTransactions = filteredTransactions.filter(t => t.category === filterCategory);
   }
+  if (search.trim()) {
+    filteredTransactions = filteredTransactions.filter(t =>
+      t.description.toLowerCase().includes(search.trim().toLowerCase())
+    );
+  }
+  filteredTransactions = [...filteredTransactions].sort((a, b) => {
+    if (sortBy === "date-desc") return b.date.localeCompare(a.date);
+    if (sortBy === "date-asc") return a.date.localeCompare(b.date);
+    if (sortBy === "amount-desc") return parseFloat(b.amount) - parseFloat(a.amount);
+    if (sortBy === "amount-asc") return parseFloat(a.amount) - parseFloat(b.amount);
+    return 0;
+  });
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <CardTitle className="text-base">Transactions</CardTitle>
-          <div className="flex gap-2" data-testid="filters">
-            <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="income">Income</SelectItem>
-                <SelectItem value="expense">Expense</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={filterCategory} onValueChange={setFilterCategory}>
-              <SelectTrigger className="w-36">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(cat => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <CardTitle className="text-base">Transactions</CardTitle>
+            <div className="flex gap-2" data-testid="filters">
+              <Select value={filterType} onValueChange={setFilterType}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="income">Income</SelectItem>
+                  <SelectItem value="expense">Expense</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filterCategory} onValueChange={setFilterCategory}>
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map(cat => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date-desc">Newest first</SelectItem>
+                  <SelectItem value="date-asc">Oldest first</SelectItem>
+                  <SelectItem value="amount-desc">Highest amount</SelectItem>
+                  <SelectItem value="amount-asc">Lowest amount</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+          <Input
+            type="text"
+            placeholder="Search by description..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full"
+          />
         </div>
       </CardHeader>
       <CardContent>
