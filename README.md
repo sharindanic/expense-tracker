@@ -27,11 +27,15 @@ A full-stack personal finance tracker. Track income and expenses, view a live ba
 
 - Register and login with secure JWT authentication
 - Forgot password flow with reset token (no email service required — see note below)
+- Change password from inside the app while logged in
+- Rate limiting on all auth endpoints (20 requests per 15 minutes per IP)
 - Add, edit, and delete transactions with confirmation
+- Search transactions by description and sort by date or amount
 - Client-side validation on all forms with inline error messages
 - Live summary of income, expenses, and balance
 - Filter transactions by type and category
 - Monthly budget limits with progress bars and over-budget warnings
+- Dark mode toggle (respects system preference)
 - Data persists in PostgreSQL database
 - Analytics dashboard with spending by category (donut chart), income vs expenses by month (bar chart), and balance over time (line chart)
 - Export transactions to CSV and charts to PNG
@@ -101,8 +105,10 @@ npm run test:ui       # Open Playwright UI
 │   ├── Analytics.jsx         # Charts dashboard (recharts) + CSV/PNG export
 │   └── components/ui/        # shadcn/ui components
 ├── tests/
-│   ├── auth.spec.js          # Auth E2E tests
-│   └── transactions.spec.js  # Transaction E2E tests
+│   ├── auth.spec.js              # Auth E2E tests
+│   ├── transactions.spec.js      # Transaction add/delete/filter E2E tests
+│   ├── edit-transaction.spec.js  # Edit transaction E2E tests
+│   └── budget.spec.js            # Budget manager E2E tests
 └── docker-compose.yml        # PostgreSQL container
 ```
 
@@ -126,6 +132,7 @@ Here's how it works:
 | POST | `/api/auth/login` | No | Login, returns JWT |
 | POST | `/api/auth/forgot-password` | No | Generate a password reset token |
 | POST | `/api/auth/reset-password` | No | Reset password using token |
+| POST | `/api/auth/change-password` | Yes | Change password while logged in |
 | GET | `/api/transactions` | Yes | Get user's transactions |
 | POST | `/api/transactions` | Yes | Add transaction |
 | PATCH | `/api/transactions/:id` | Yes | Edit transaction |

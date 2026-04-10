@@ -38,11 +38,13 @@ App.jsx
 
 **`AuthPage.jsx`** — handles login, register, forgot password, and reset password. Uses a `view` state (`'auth' | 'forgot' | 'reset'`) to switch between the three screens. No email service — reset token is shown directly on screen and expires in 15 minutes.
 
+**`App.jsx`** also contains the change password dialog (state and handler live here). Opened via "Change password" button in the header.
+
 **`Summary.jsx`** — computes and displays `totalIncome`, `totalExpenses`, `balance` from transactions.
 
 **`TransactionForm.jsx`** — add transaction form with client-side validation. Shows inline error messages for empty description or invalid amount.
 
-**`TransactionList.jsx`** — filterable table with edit (dialog) and delete (confirm dialog). Edit modal has client-side validation.
+**`TransactionList.jsx`** — filterable, searchable, sortable table with edit (dialog) and delete (confirm dialog). Edit modal has client-side validation. Search filters by description in real time. Sort options: newest/oldest/highest/lowest amount.
 
 **`BudgetManager.jsx`** — set monthly budget limits per category. Shows progress bars with warning at 80% and over-budget state at 100%.
 
@@ -50,9 +52,9 @@ App.jsx
 
 ### Backend (`server/`)
 
-**`server/index.js`** — all API routes for transactions and budgets.
+**`server/index.js`** — all API routes for transactions and budgets. Rate limiting applied to all `/api/auth/*` routes (20 requests per 15 minutes per IP via `express-rate-limit`).
 
-**`server/routes/auth.js`** — register, login, forgot-password, reset-password endpoints.
+**`server/routes/auth.js`** — register, login, forgot-password, reset-password, and change-password endpoints.
 
 **`server/middleware/auth.js`** — JWT verification middleware (`requireAuth`).
 
@@ -72,6 +74,7 @@ The `categories` constant is duplicated in `TransactionForm`, `TransactionList`,
 | POST | `/api/auth/login` | No | Login, returns JWT |
 | POST | `/api/auth/forgot-password` | No | Generate reset token (returned in response) |
 | POST | `/api/auth/reset-password` | No | Reset password using token |
+| POST | `/api/auth/change-password` | Yes | Change password while logged in |
 | GET | `/api/transactions` | Yes | Get user's transactions |
 | POST | `/api/transactions` | Yes | Add transaction |
 | PATCH | `/api/transactions/:id` | Yes | Edit transaction |
