@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import pkg from '@prisma/client';
 const { PrismaClient } = pkg;
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -13,8 +14,16 @@ const PORT = 3000;
 
 app.use(express.json());
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  message: { error: 'Too many attempts. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Auth routes (public)
-app.use('/api/auth', createAuthRouter(prisma));
+app.use('/api/auth', authLimiter, createAuthRouter(prisma));
 
 // GET /api/transactions
 app.get('/api/transactions', requireAuth, async (req, res) => {

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
+import { requireAuth } from '../middleware/auth.js';
 
 export function createAuthRouter(prisma) {
   const router = Router();
@@ -86,6 +87,27 @@ export function createAuthRouter(prisma) {
       res.json({ message: 'Password reset successful' });
     } catch {
       res.status(500).json({ error: 'Failed to reset password' });
+    }
+  });
+
+  // POST /api/auth/change-password
+  router.post('/change-password', requireAuth, async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: 'Current and new password are required' });
+      }
+
+      const user = await prisma.user.findUnique({ where: { id: req.userId } });
+      const valid = await bcrypt.compare(currentPassword, user.password);
+      if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      await prisma.user.update({ where: { id: req.userId }, data: { password: hashed } });
+
+      res.json({ message: 'Password changed successfully' });
+    } catch {
+      res.status(500).json({ error: 'Failed to change password' });
     }
   });
 

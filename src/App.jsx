@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Sun, Moon } from 'lucide-react';
 import { Toaster } from '@/components/ui/sonner';
 import Summary from './Summary';
@@ -14,6 +16,10 @@ import BudgetManager from './BudgetManager';
 function App() {
   const { resolvedTheme, setTheme } = useTheme();
   const [user, setUser] = useState(null);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [changePasswordError, setChangePasswordError] = useState('');
   const [transactions, setTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [view, setView] = useState('dashboard');
@@ -140,6 +146,32 @@ function App() {
     }
   };
 
+  const handleChangePassword = async () => {
+    setChangePasswordError('');
+    if (!currentPassword || !newPassword) {
+      setChangePasswordError('Both fields are required.');
+      return;
+    }
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setChangePasswordError(data.error || 'Something went wrong.');
+        return;
+      }
+      toast.success('Password changed successfully.');
+      setShowChangePassword(false);
+      setCurrentPassword('');
+      setNewPassword('');
+    } catch {
+      setChangePasswordError('Could not reach the server.');
+    }
+  };
+
   const handleDeleteBudget = async (id) => {
     try {
       const res = await fetch(`/api/budgets/${id}`, {
@@ -205,9 +237,40 @@ function App() {
             >
               {resolvedTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
+            <Button variant="outline" onClick={() => { setChangePasswordError(''); setShowChangePassword(true); }}>
+              Change password
+            </Button>
             <Button variant="outline" onClick={handleLogout}>Logout</Button>
           </div>
         </div>
+
+        <Dialog open={showChangePassword} onOpenChange={(open) => { if (!open) { setShowChangePassword(false); setCurrentPassword(''); setNewPassword(''); setChangePasswordError(''); } }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Change password</DialogTitle>
+              <DialogDescription>Enter your current password and choose a new one.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3">
+              <Input
+                type="password"
+                placeholder="Current password"
+                value={currentPassword}
+                onChange={e => setCurrentPassword(e.target.value)}
+              />
+              <Input
+                type="password"
+                placeholder="New password"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+              />
+              {changePasswordError && <p className="text-sm text-red-600">{changePasswordError}</p>}
+            </div>
+            <DialogFooter>
+              <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
+              <Button onClick={handleChangePassword}>Save</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <Summary transactions={transactions} />
         {view === 'dashboard' ? (
           <>
