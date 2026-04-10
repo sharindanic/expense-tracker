@@ -22,7 +22,7 @@ test.describe('Edit Transaction', () => {
 
   test('can edit a transaction description', async ({ page }) => {
     await page.getByRole('button', { name: 'Edit' }).click();
-    await page.getByPlaceholder('Description').fill('Updated description');
+    await page.getByRole('dialog').getByPlaceholder('Description').fill('Updated description');
     await page.getByRole('button', { name: 'Save' }).click();
 
     await expect(page.getByText('Updated description')).toBeVisible();
@@ -31,7 +31,7 @@ test.describe('Edit Transaction', () => {
 
   test('can edit a transaction amount', async ({ page }) => {
     await page.getByRole('button', { name: 'Edit' }).click();
-    await page.getByPlaceholder('Amount').fill('250');
+    await page.getByRole('dialog').getByPlaceholder('Amount').fill('250');
     await page.getByRole('button', { name: 'Save' }).click();
 
     await expect(page.getByText('-$250.00')).toBeVisible();
@@ -39,7 +39,7 @@ test.describe('Edit Transaction', () => {
 
   test('shows error when saving empty description', async ({ page }) => {
     await page.getByRole('button', { name: 'Edit' }).click();
-    await page.getByPlaceholder('Description').fill('');
+    await page.getByRole('dialog').getByPlaceholder('Description').fill('');
     await page.getByRole('button', { name: 'Save' }).click();
 
     await expect(page.getByText('Description cannot be empty.')).toBeVisible();
@@ -47,7 +47,7 @@ test.describe('Edit Transaction', () => {
 
   test('shows error when saving invalid amount', async ({ page }) => {
     await page.getByRole('button', { name: 'Edit' }).click();
-    await page.getByPlaceholder('Amount').fill('0');
+    await page.getByRole('dialog').getByPlaceholder('Amount').fill('0');
     await page.getByRole('button', { name: 'Save' }).click();
 
     await expect(page.getByText('Enter a valid amount.')).toBeVisible();

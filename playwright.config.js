@@ -7,7 +7,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: 'node server/index.js',
+      command: 'NODE_ENV=test node server/index.js',
       port: 3000,
       reuseExistingServer: true,
     },
