@@ -13,6 +13,7 @@ A full-stack personal finance tracker. Track income and expenses, view a live ba
 - Tailwind CSS v4
 - shadcn/ui components
 - Recharts (analytics charts)
+- Shippori Mincho + Noto Serif JP (self-hosted via fontsource)
 
 **Backend**
 - Node.js + Express 5
@@ -40,6 +41,19 @@ A full-stack personal finance tracker. Track income and expenses, view a live ba
 - Analytics dashboard with spending by category (donut chart), income vs expenses by month (bar chart), and balance over time (line chart)
 - Export transactions to CSV and charts to PNG
 
+## Design
+
+The sign-in screen uses a **wabi-sabi (侘寂)** aesthetic built around the *kakeibo* (家計簿) idea — the Japanese art of household bookkeeping:
+
+- Warm washi-paper background with a subtle grain and aged-edge vignette
+- Sumi ink (charcoal) type with a single vermilion (朱) accent — no other color
+- A hand-drawn ensō brush circle (balance / a coin) behind the form
+- Vertical 家計簿 wordmark and a textured 記 hanko seal
+- Boxless fields with Japanese labels and brush underlines
+- Light and dark (sumi-night) variants
+
+All design tokens are scoped to a `.wabi` class in `src/index.css`, so the rest of the app keeps the neutral shadcn theme.
+
 ## Getting Started
 
 ### 1. Start the database
@@ -59,6 +73,8 @@ npm run seed          # Load sample data (optional)
 ```
 
 Demo account after seeding: `demo@example.com` / `password123`
+
+Test password: 12345pwd
 
 ### 3. Run the app
 

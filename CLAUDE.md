@@ -38,6 +38,8 @@ App.jsx
 
 **`AuthPage.jsx`** — handles login, register, forgot password, and reset password. Uses a `view` state (`'auth' | 'forgot' | 'reset'`) to switch between the three screens. No email service — reset token is shown directly on screen and expires in 15 minutes.
 
+Styled with a **wabi-sabi (侘寂)** theme around the *kakeibo* (家計簿) idea: washi-paper background, sumi ink, and a single vermilion (朱) accent, with an ensō brush circle and a 記 hanko seal. All labels are Japanese. Design tokens (`--washi`, `--sumi`, `--shu`, grain, ensō, seal, brush-underline input) live under a `.wabi` class in `src/index.css` and are scoped so the rest of the app keeps the neutral shadcn theme. Fonts are Shippori Mincho + Noto Serif JP (self-hosted via fontsource). Supports light and dark (sumi-night) variants.
+
 **`App.jsx`** also contains the change password dialog (state and handler live here). Opened via "Change password" button in the header.
 
 **`Summary.jsx`** — computes and displays `totalIncome`, `totalExpenses`, `balance` from transactions.
