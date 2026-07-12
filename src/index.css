@@ -2,6 +2,11 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource/shippori-mincho/400.css";
+@import "@fontsource/shippori-mincho/500.css";
+@import "@fontsource/shippori-mincho/600.css";
+@import "@fontsource/shippori-mincho/700.css";
+@import "@fontsource/noto-serif-jp/400.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -128,3 +133,121 @@
     @apply font-sans;
     }
 }
+
+/* ============================================================
+   侘寂  Wabi-sabi auth surface
+   Washi paper + sumi ink + a single vermilion (朱) seal.
+   All tokens scoped to .wabi so the rest of the app is untouched.
+   ============================================================ */
+.wabi {
+  --washi: oklch(0.947 0.014 84);        /* warm cream paper        */
+  --washi-deep: oklch(0.905 0.02 78);    /* aged edge / vignette    */
+  --sumi: oklch(0.29 0.008 55);          /* charcoal ink (not black)*/
+  --sumi-soft: oklch(0.46 0.01 55);      /* secondary ink           */
+  --sumi-line: oklch(0.29 0.008 55 / 0.28);
+  --shu: oklch(0.565 0.185 32);          /* vermilion 朱            */
+  --wabi-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  position: relative;
+  min-height: 100vh;
+  color: var(--sumi);
+  background-color: var(--washi);
+  background-image: radial-gradient(125% 125% at 50% -10%, transparent 52%, var(--washi-deep) 100%);
+  font-family: "Shippori Mincho", "Noto Serif JP", serif;
+}
+
+.dark .wabi {
+  --washi: oklch(0.205 0.006 55);        /* sumi night ground       */
+  --washi-deep: oklch(0.16 0.006 55);
+  --sumi: oklch(0.9 0.01 80);
+  --sumi-soft: oklch(0.68 0.01 70);
+  --sumi-line: oklch(0.9 0.01 80 / 0.22);
+  --shu: oklch(0.63 0.17 33);
+}
+
+/* paper fibre grain */
+.wabi::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--wabi-grain);
+  background-size: 150px 150px;
+  opacity: 0.055;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 0;
+}
+.dark .wabi::after { mix-blend-mode: screen; opacity: 0.05; }
+
+/* brush-underline input */
+.wabi-input {
+  height: 2.75rem;
+  border: 0;
+  border-bottom: 1px solid var(--sumi-line);
+  border-radius: 0;
+  background: transparent;
+  padding-left: 0;
+  padding-right: 0;
+  color: var(--sumi);
+  font-family: inherit;
+  font-size: 1.05rem;
+  transition: border-color 0.4s ease;
+}
+.wabi-input:focus-visible {
+  border-bottom-color: var(--shu);
+  box-shadow: none;
+  outline: none;
+}
+
+/* ink submit bar */
+.wabi-btn {
+  height: 3rem;
+  width: 100%;
+  border-radius: 2px;
+  background: var(--sumi);
+  color: var(--washi);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  padding-left: 0.35em; /* optical centering for tracked text */
+  transition: opacity 0.3s ease;
+}
+.wabi-btn:hover { background: var(--sumi); opacity: 0.86; }
+
+/* hanko 朱 seal — uneven stamped ink */
+.wabi-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 5px;
+  background-color: var(--shu);
+  background-image: var(--wabi-grain);
+  background-size: 80px 80px;
+  background-blend-mode: screen;
+  box-shadow: inset 0 0 0 1.5px color-mix(in oklch, var(--shu) 65%, black);
+  color: var(--washi);
+  font-family: "Shippori Mincho", serif;
+  font-weight: 600;
+  font-size: 1.4rem;
+  line-height: 1;
+  transform: rotate(-4deg);
+  user-select: none;
+}
+
+/* vertical brand mark 家計簿 */
+.wabi-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.18em;
+  font-weight: 500;
+}
+
+/* faint ink drift-in for the ensō */
+@keyframes wabi-ink {
+  from { opacity: 0; transform: rotate(-8deg) scale(0.98); }
+  to   { opacity: 1; transform: rotate(0deg) scale(1); }
+}
+.wabi-enso { animation: wabi-ink 1.6s ease-out both; }
