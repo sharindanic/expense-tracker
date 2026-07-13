@@ -52,7 +52,7 @@ function Field({ icon: Icon, label, ...props }) {
         <Icon className="size-3.5" strokeWidth={1.5} />
         {label}
       </span>
-      <Input className="wabi-input" {...props} />
+      <Input className="wabi-input" aria-label={label} {...props} />
     </label>
   );
 }

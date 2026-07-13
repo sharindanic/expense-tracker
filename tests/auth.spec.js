@@ -12,59 +12,59 @@ test.describe.serial('Authentication', () => {
 
   test('shows login page when not authenticated', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByText('Sign in').first()).toBeVisible();
-    await expect(page.getByPlaceholder('Email')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'ログイン' })).toBeVisible();
+    await expect(page.getByLabel('メール')).toBeVisible();
   });
 
   test('can register a new account', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Sign up' }).click();
-    await expect(page.getByText('Create account').first()).toBeVisible();
+    await page.getByRole('button', { name: '新規登録' }).click();
+    await expect(page.getByRole('button', { name: '新規登録' })).toBeVisible();
 
-    await page.getByPlaceholder('Email').fill(testEmail);
-    await page.getByPlaceholder('Password').fill(testPassword);
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByLabel('メール').fill(testEmail);
+    await page.getByLabel('パスワード', { exact: true }).fill(testPassword);
+    await page.getByRole('button', { name: '新規登録' }).click();
 
     await expect(page.getByRole('heading', { name: 'Finance Tracker' })).toBeVisible();
   });
 
   test('shows error for duplicate email', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Sign up' }).click();
+    await page.getByRole('button', { name: '新規登録' }).click();
 
-    await page.getByPlaceholder('Email').fill(testEmail);
-    await page.getByPlaceholder('Password').fill(testPassword);
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByLabel('メール').fill(testEmail);
+    await page.getByLabel('パスワード', { exact: true }).fill(testPassword);
+    await page.getByRole('button', { name: '新規登録' }).click();
 
     await expect(page.getByText('Email already in use')).toBeVisible();
   });
 
   test('can login with existing account', async ({ page }) => {
     await page.goto('/');
-    await page.getByPlaceholder('Email').fill(testEmail);
-    await page.getByPlaceholder('Password').fill(testPassword);
-    await page.getByRole('button', { name: 'Sign in' }).click();
+    await page.getByLabel('メール').fill(testEmail);
+    await page.getByLabel('パスワード', { exact: true }).fill(testPassword);
+    await page.getByRole('button', { name: 'ログイン' }).click();
 
     await expect(page.getByRole('heading', { name: 'Finance Tracker' })).toBeVisible();
   });
 
   test('shows error for wrong password', async ({ page }) => {
     await page.goto('/');
-    await page.getByPlaceholder('Email').fill(testEmail);
-    await page.getByPlaceholder('Password').fill('wrongpassword');
-    await page.getByRole('button', { name: 'Sign in' }).click();
+    await page.getByLabel('メール').fill(testEmail);
+    await page.getByLabel('パスワード', { exact: true }).fill('wrongpassword');
+    await page.getByRole('button', { name: 'ログイン' }).click();
 
     await expect(page.getByText('Invalid credentials')).toBeVisible();
   });
 
   test('can logout', async ({ page }) => {
     await page.goto('/');
-    await page.getByPlaceholder('Email').fill(testEmail);
-    await page.getByPlaceholder('Password').fill(testPassword);
-    await page.getByRole('button', { name: 'Sign in' }).click();
+    await page.getByLabel('メール').fill(testEmail);
+    await page.getByLabel('パスワード', { exact: true }).fill(testPassword);
+    await page.getByRole('button', { name: 'ログイン' }).click();
     await expect(page.getByRole('heading', { name: 'Finance Tracker' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Logout' }).click();
-    await expect(page.getByPlaceholder('Email')).toBeVisible();
+    await expect(page.getByLabel('メール')).toBeVisible();
   });
 });
