@@ -7,10 +7,10 @@ test.describe('Edit Transaction', () => {
     await page.goto('/');
     await page.evaluate(() => localStorage.clear());
     await page.reload();
-    await page.getByRole('button', { name: 'Sign up' }).click();
-    await page.getByPlaceholder('Email').fill(`edit_${Date.now()}@example.com`);
-    await page.getByPlaceholder('Password').fill(testPassword);
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByRole('button', { name: '新規登録' }).click();
+    await page.getByLabel('メール').fill(`edit_${Date.now()}@example.com`);
+    await page.getByLabel('パスワード', { exact: true }).fill(testPassword);
+    await page.getByRole('button', { name: '新規登録' }).click();
     await expect(page.getByRole('heading', { name: 'Finance Tracker' })).toBeVisible();
 
     // Add a transaction to edit
