@@ -4,6 +4,7 @@ A full-stack personal finance tracker. Track income and expenses, view a live ba
 
 
 
+
 ## ss will be added later 
 
 ## Tech Stack
@@ -14,6 +15,7 @@ A full-stack personal finance tracker. Track income and expenses, view a live ba
 - shadcn/ui components
 - Recharts (analytics charts)
 - Shippori Mincho + Noto Serif JP (self-hosted via fontsource)
+- Homebrew
 
 **Backend**
 - Node.js + Express 5
