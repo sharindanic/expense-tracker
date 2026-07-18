@@ -156,3 +156,8 @@ Here's how it works:
 | GET | `/api/budgets` | Yes | Get user's budgets |
 | POST | `/api/budgets` | Yes | Create or update a budget |
 | DELETE | `/api/budgets/:id` | Yes | Delete a budget |
+
+
+
+
+- added japanese style wabi-sabi fonts and theme
