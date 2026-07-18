@@ -2,7 +2,7 @@
 
 A full-stack personal finance tracker. Track income and expenses, view a live balance summary, filter by category, and manage your data with a secure account.
 
-## Screenshots
+
 
 ## ss will be added later 
 
