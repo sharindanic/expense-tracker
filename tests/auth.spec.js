@@ -36,7 +36,7 @@ test.describe.serial('Authentication', () => {
     await page.getByLabel('パスワード', { exact: true }).fill(testPassword);
     await page.getByRole('button', { name: '新規登録' }).click();
 
-    await expect(page.getByText('Email already in use')).toBeVisible();
+    await expect(page.getByText('メールアドレスは既に使用されています')).toBeVisible();
   });
 
   test('can login with existing account', async ({ page }) => {
@@ -54,7 +54,7 @@ test.describe.serial('Authentication', () => {
     await page.getByLabel('パスワード', { exact: true }).fill('wrongpassword');
     await page.getByRole('button', { name: 'ログイン' }).click();
 
-    await expect(page.getByText('Invalid credentials')).toBeVisible();
+    await expect(page.getByText('メールアドレスまたはパスワードが違います')).toBeVisible();
   });
 
   test('can logout', async ({ page }) => {

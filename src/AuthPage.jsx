@@ -1,7 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, KeyRound, ArrowLeft } from 'lucide-react';
+
+// Server errors come back in English; map them to Japanese so the auth
+// flow never mixes languages, even on failure.
+const ERROR_JA = {
+  'Email and password required': 'メールとパスワードを入力してください',
+  'Email already in use': 'メールアドレスは既に使用されています',
+  'Registration failed': '登録に失敗しました',
+  'Invalid credentials': 'メールアドレスまたはパスワードが違います',
+  'Login failed': 'ログインに失敗しました',
+  'Email is required': 'メールを入力してください',
+  'No account found with that email': 'このメールアドレスのアカウントが見つかりません',
+  'Failed to generate reset token': 'トークンの生成に失敗しました',
+  'Token and new password are required': 'トークンと新しいパスワードを入力してください',
+  'Invalid reset token': 'トークンが無効です',
+  'Reset token has expired': 'トークンの有効期限が切れています',
+  'Failed to reset password': 'パスワードの更新に失敗しました',
+};
+const translateError = (msg) => ERROR_JA[msg] || 'エラーが発生しました';
 
 // 侘寂 — an imperfect ensō (円相): a single brush circle, open on one side.
 // Doubles as a coin / a sense of balance for the ledger.
@@ -70,6 +88,22 @@ function Quiet({ children, ...props }) {
   );
 }
 
+// Japanese-only button label, with the English word revealed on hover —
+// keeps the UI Japanese-first while staying legible to non-readers.
+function TranslatedButton({ en, className, ...props }) {
+  return (
+    <div className="group relative w-full">
+      <Button className={className} {...props} />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-full -translate-x-1/2 text-center font-serif text-[0.65rem] tracking-[0.2em] text-[var(--sumi-soft)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+      >
+        {en}
+      </span>
+    </div>
+  );
+}
+
 function Shell({ children }) {
   return (
     <div className="wabi flex min-h-screen flex-col items-center justify-center px-6 py-16">
@@ -88,10 +122,13 @@ function AuthPage({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // forgot password state
   const [forgotEmail, setForgotEmail] = useState('');
   const [resetToken, setResetToken] = useState('');
+  const [tokenExpiresAt, setTokenExpiresAt] = useState(null);
+  const [secondsLeft, setSecondsLeft] = useState(0);
   const [copied, setCopied] = useState(false);
 
   // reset password state
@@ -99,10 +136,20 @@ function AuthPage({ onLogin }) {
   const [newPassword, setNewPassword] = useState('');
   const [resetSuccess, setResetSuccess] = useState(false);
 
+  // Live countdown for the 15-minute reset token, ticked off the actual
+  // clock (not a naive decrement) so it stays correct across tab switches.
+  useEffect(() => {
+    if (!tokenExpiresAt) return;
+    const tick = () => setSecondsLeft(Math.max(0, Math.round((tokenExpiresAt - Date.now()) / 1000)));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [tokenExpiresAt]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
+    setLoading(true);
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const res = await fetch(endpoint, {
@@ -113,20 +160,23 @@ function AuthPage({ onLogin }) {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Something went wrong');
+        setError(translateError(data.error));
         return;
       }
 
       localStorage.setItem('token', data.token);
       onLogin(data.user);
     } catch {
-      setError('Network error. Please try again.');
+      setError('ネットワークエラー。もう一度お試しください。');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleForgot = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       const res = await fetch('/api/auth/forgot-password', {
         method: 'POST',
@@ -135,12 +185,15 @@ function AuthPage({ onLogin }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Something went wrong');
+        setError(translateError(data.error));
         return;
       }
       setResetToken(data.resetToken);
+      setTokenExpiresAt(Date.now() + 15 * 60 * 1000);
     } catch {
-      setError('Network error. Please try again.');
+      setError('ネットワークエラー。もう一度お試しください。');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -153,6 +206,7 @@ function AuthPage({ onLogin }) {
   const handleReset = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       const res = await fetch('/api/auth/reset-password', {
         method: 'POST',
@@ -161,12 +215,14 @@ function AuthPage({ onLogin }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Something went wrong');
+        setError(translateError(data.error));
         return;
       }
       setResetSuccess(true);
     } catch {
-      setError('Network error. Please try again.');
+      setError('ネットワークエラー。もう一度お試しください。');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -175,6 +231,7 @@ function AuthPage({ onLogin }) {
     setError('');
     setForgotEmail('');
     setResetToken('');
+    setTokenExpiresAt(null);
     setCopied(false);
     setTokenInput('');
     setNewPassword('');
@@ -198,7 +255,9 @@ function AuthPage({ onLogin }) {
               required
             />
             <Err />
-            <Button type="submit" className="wabi-btn">トークン</Button>
+            <TranslatedButton type="submit" className="wabi-btn" en="Get Token" disabled={loading}>
+              {loading ? '・・・' : 'トークン'}
+            </TranslatedButton>
             <div className="flex justify-center">
               <Quiet onClick={goBack}>
                 <ArrowLeft className="mr-1 inline size-3.5" strokeWidth={1.5} />戻る
@@ -208,7 +267,10 @@ function AuthPage({ onLogin }) {
         ) : (
           <div className="flex w-full flex-col gap-5">
             <p className="text-center text-sm text-[var(--sumi-soft)]">
-              十五分間有効
+              有効期限{' '}
+              <span className={secondsLeft <= 60 ? 'text-[var(--shu)]' : ''}>
+                {String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:{String(secondsLeft % 60).padStart(2, '0')}
+              </span>
             </p>
             <div className="flex items-center gap-2">
               <Input value={resetToken} readOnly className="wabi-input font-mono text-xs" />
@@ -216,12 +278,13 @@ function AuthPage({ onLogin }) {
                 {copied ? '済' : '複'}
               </Button>
             </div>
-            <Button
+            <TranslatedButton
               className="wabi-btn"
+              en="Next"
               onClick={() => { setView('reset'); setTokenInput(resetToken); setError(''); }}
             >
               次へ
-            </Button>
+            </TranslatedButton>
             <div className="flex justify-center">
               <Quiet onClick={goBack}>
                 <ArrowLeft className="mr-1 inline size-3.5" strokeWidth={1.5} />戻る
@@ -240,7 +303,7 @@ function AuthPage({ onLogin }) {
         {resetSuccess ? (
           <div className="flex w-full flex-col gap-6">
             <p className="text-center text-base text-[var(--sumi)]">完了しました</p>
-            <Button className="wabi-btn" onClick={goBack}>ログイン</Button>
+            <TranslatedButton className="wabi-btn" en="Login" onClick={goBack}>ログイン</TranslatedButton>
           </div>
         ) : (
           <form onSubmit={handleReset} className="flex w-full flex-col gap-6">
@@ -262,7 +325,9 @@ function AuthPage({ onLogin }) {
               required
             />
             <Err />
-            <Button type="submit" className="wabi-btn">更新</Button>
+            <TranslatedButton type="submit" className="wabi-btn" en="Update" disabled={loading}>
+              {loading ? '・・・' : '更新'}
+            </TranslatedButton>
             <div className="flex justify-center">
               <Quiet onClick={goBack}>
                 <ArrowLeft className="mr-1 inline size-3.5" strokeWidth={1.5} />戻る
@@ -295,9 +360,9 @@ function AuthPage({ onLogin }) {
           required
         />
         <Err />
-        <Button type="submit" className="wabi-btn">
-          {isLogin ? 'ログイン' : '新規登録'}
-        </Button>
+        <TranslatedButton type="submit" className="wabi-btn" en={isLogin ? 'Login' : 'Register'} disabled={loading}>
+          {loading ? '・・・' : isLogin ? 'ログイン' : '新規登録'}
+        </TranslatedButton>
 
         <div className="flex flex-col items-center gap-3 pt-1">
           {isLogin && (
