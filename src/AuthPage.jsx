@@ -195,6 +195,8 @@ function AuthPage({ onLogin }) {
     return () => clearInterval(id);
   }, [tokenExpiresAt]);
 
+  const tokenExpired = tokenExpiresAt !== null && secondsLeft <= 0;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -316,12 +318,16 @@ function AuthPage({ onLogin }) {
           </form>
         ) : (
           <div className="flex w-full flex-col gap-5">
-            <p className="text-center text-sm text-[var(--sumi-soft)]">
-              有効期限{' '}
-              <span className={secondsLeft <= 60 ? 'text-[var(--shu)]' : ''}>
-                {String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:{String(secondsLeft % 60).padStart(2, '0')}
-              </span>
-            </p>
+            {tokenExpired ? (
+              <p className="text-center text-sm text-[var(--shu)]">期限切れ — 最初からやり直してください</p>
+            ) : (
+              <p className="text-center text-sm text-[var(--sumi-soft)]">
+                有効期限{' '}
+                <span className={secondsLeft <= 60 ? 'text-[var(--shu)]' : ''}>
+                  {String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:{String(secondsLeft % 60).padStart(2, '0')}
+                </span>
+              </p>
+            )}
             <div className="flex items-center gap-2">
               <Input value={resetToken} readOnly className="wabi-input font-mono text-xs" />
               <Button type="button" onClick={handleCopy} className="wabi-btn h-11 w-auto shrink-0 px-4 tracking-normal">
@@ -331,6 +337,7 @@ function AuthPage({ onLogin }) {
             <TranslatedButton
               className="wabi-btn"
               en="Next"
+              disabled={tokenExpired}
               onClick={() => { setView('reset'); setTokenInput(resetToken); setError(''); }}
             >
               次へ
