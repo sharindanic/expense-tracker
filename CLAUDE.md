@@ -36,7 +36,7 @@ App.jsx
 
 **`App.jsx`** — root component. Holds `transactions`, `budgets`, and `user` state. All API calls live here and are passed down as handlers (`handleAdd`, `handleEdit`, `handleDelete`, `handleSaveBudget`, `handleDeleteBudget`). Manages `view` state to switch between dashboard and analytics.
 
-**`AuthPage.jsx`** — handles login, register, forgot password, and reset password. Uses a `view` state (`'auth' | 'forgot' | 'reset'`) to switch between the three screens. No email service — reset token is shown directly on screen and expires in 15 minutes.
+**`AuthPage.jsx`** — handles login, register, forgot password, and reset password. Uses a `view` state (`'auth' | 'forgot' | 'reset'`) to switch between the three screens. No email service — reset token is shown directly on screen; the forgot-password screen shows a live countdown to its 15-minute expiry. Server error strings are translated to Japanese via a local `ERROR_JA` map so the UI never mixes languages. Submit buttons disable and show a loading state while a request is in flight. Primary buttons (`TranslatedButton`) reveal their English word on hover, rendered as hand-built SVG strokes (`KANJI_LATIN_GLYPHS`/`KanjiLatin`) rather than a system font.
 
 Styled with a **wabi-sabi (侘寂)** theme around the *kakeibo* (家計簿) idea: washi-paper background, sumi ink, and a single vermilion (朱) accent, with an ensō brush circle and a 記 hanko seal. All labels are Japanese. Design tokens (`--washi`, `--sumi`, `--shu`, grain, ensō, seal, brush-underline input) live under a `.wabi` class in `src/index.css` and are scoped so the rest of the app keeps the neutral shadcn theme. Fonts are Shippori Mincho + Noto Serif JP (self-hosted via fontsource). Supports light and dark (sumi-night) variants.
 
