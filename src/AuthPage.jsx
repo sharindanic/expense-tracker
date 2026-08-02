@@ -88,18 +88,67 @@ function Quiet({ children, ...props }) {
   );
 }
 
+// Hand-drawn stroke set: angular, no curves — same construction logic as a
+// kanji/katakana redraw of the Latin alphabet, on a 12x19 stroke grid.
+const KANJI_LATIN_GLYPHS = {
+  A: ['M1,18 L6,1 L11,18', 'M3.5,11 L8.5,10.5'],
+  D: ['M2,1 L2,18', 'M2,1 L8,4 L8,15 L2,18'],
+  E: ['M2,1 L2,18', 'M2,1 L10,1', 'M2,9.5 L8,9.5', 'M2,18 L10,18'],
+  G: ['M10,3 L4,1 L1,5 L1,14 L4,18 L10,16', 'M6,10 L10,10 L10,15'],
+  I: ['M6,1 L6,18', 'M3,1 L9,1', 'M3,18 L9,18'],
+  K: ['M2,1 L2,18', 'M2,10 L10,1', 'M2,10 L10,18'],
+  L: ['M2,1 L2,18', 'M2,18 L9,18'],
+  N: ['M2,1 L2,18', 'M2,1 L10,18', 'M10,1 L10,18'],
+  O: ['M6,1 L10,4 L10,15 L6,18 L2,15 L2,4 Z'],
+  P: ['M2,1 L2,18', 'M2,1 L8,1 L9,6 L8,9.5 L2,9.5'],
+  R: ['M2,1 L2,18', 'M2,1 L8,1 L9,6 L8,9.5 L2,9.5', 'M5,9.5 L10,18'],
+  S: ['M9,3 L3,3 L3,9 L9,9 L9,15 L3,15'],
+  T: ['M1,1 L11,1', 'M6,1 L6,18'],
+  U: ['M2,1 L2,14 L6,18 L10,14 L10,1'],
+  X: ['M2,1 L10,18', 'M10,1 L2,18'],
+};
+
+// Renders `text` as those hand-drawn strokes instead of a system font.
+function KanjiLatin({ text }) {
+  return (
+    <span className="inline-flex items-center gap-[3px]">
+      {text.toUpperCase().split('').map((ch, i) =>
+        ch === ' ' ? (
+          <span key={i} className="inline-block w-1.5" />
+        ) : (
+          <svg
+            key={i}
+            viewBox="0 0 12 19"
+            className="h-3.5 w-auto"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            {(KANJI_LATIN_GLYPHS[ch] || []).map((d, j) => (
+              <path key={j} d={d} />
+            ))}
+          </svg>
+        )
+      )}
+    </span>
+  );
+}
+
 // Japanese-only button label, with the English word revealed on hover —
-// keeps the UI Japanese-first while staying legible to non-readers.
+// drawn in the same angular stroke style as the rest of the wabi design,
+// not a system font, so the hover state never breaks the aesthetic.
 function TranslatedButton({ en, className, ...props }) {
   return (
     <div className="group relative w-full">
       <Button className={className} {...props} />
-      <span
+      <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-full -translate-x-1/2 text-center text-[0.65rem] tracking-[0.2em] text-[var(--sumi-soft)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 flex w-full -translate-x-1/2 justify-center text-[var(--sumi-soft)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
       >
-        {en}
-      </span>
+        <KanjiLatin text={en} />
+      </div>
     </div>
   );
 }
