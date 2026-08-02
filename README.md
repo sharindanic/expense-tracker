@@ -51,6 +51,9 @@ The sign-in screen uses a **wabi-sabi (侘寂)** aesthetic built around the *kak
 - Vertical 家計簿 wordmark and a textured 記 hanko seal
 - Boxless fields with Japanese labels and brush underlines
 - Light and dark (sumi-night) variants
+- Buttons stay Japanese-only; hovering reveals the English word drawn as hand-built angular strokes (not a system font)
+- Errors are translated to Japanese so a failed login never breaks into English
+- Auth buttons show a loading state while a request is in flight, and the reset-token screen counts down its 15-minute expiry live
 
 All design tokens are scoped to a `.wabi` class in `src/index.css`, so the rest of the app keeps the neutral shadcn theme.
 
