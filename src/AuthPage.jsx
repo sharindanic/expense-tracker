@@ -301,6 +301,7 @@ function AuthPage({ onLogin }) {
               type="email"
               value={forgotEmail}
               onChange={(e) => setForgotEmail(e.target.value)}
+              disabled={loading}
               required
             />
             <Err />
@@ -363,6 +364,7 @@ function AuthPage({ onLogin }) {
               value={tokenInput}
               onChange={(e) => setTokenInput(e.target.value)}
               className="wabi-input font-mono text-xs"
+              disabled={loading}
               required
             />
             <Field
@@ -371,6 +373,7 @@ function AuthPage({ onLogin }) {
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              disabled={loading}
               required
             />
             <Err />
@@ -398,6 +401,7 @@ function AuthPage({ onLogin }) {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={loading}
           required
         />
         <Field
@@ -406,6 +410,7 @@ function AuthPage({ onLogin }) {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
           required
         />
         <Err />
