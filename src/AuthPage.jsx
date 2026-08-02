@@ -96,7 +96,7 @@ function TranslatedButton({ en, className, ...props }) {
       <Button className={className} {...props} />
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-full -translate-x-1/2 text-center font-serif text-[0.65rem] tracking-[0.2em] text-[var(--sumi-soft)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-full -translate-x-1/2 text-center text-[0.65rem] tracking-[0.2em] text-[var(--sumi-soft)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
       >
         {en}
       </span>
