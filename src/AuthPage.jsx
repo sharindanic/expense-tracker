@@ -189,9 +189,14 @@ function AuthPage({ onLogin }) {
   // clock (not a naive decrement) so it stays correct across tab switches.
   useEffect(() => {
     if (!tokenExpiresAt) return;
-    const tick = () => setSecondsLeft(Math.max(0, Math.round((tokenExpiresAt - Date.now()) / 1000)));
+    let id;
+    const tick = () => {
+      const remaining = Math.max(0, Math.round((tokenExpiresAt - Date.now()) / 1000));
+      setSecondsLeft(remaining);
+      if (remaining <= 0) clearInterval(id);
+    };
     tick();
-    const id = setInterval(tick, 1000);
+    id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [tokenExpiresAt]);
 
