@@ -9,10 +9,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { categories } from '@/lib/categories';
 
-function TransactionList({ transactions, onDelete, onEdit }) {
+// `search` and `filterCategory` are owned by App so the sidebar can drive them too.
+function TransactionList({
+  transactions,
+  onDelete,
+  onEdit,
+  search,
+  onSearchChange,
+  filterCategory,
+  onCategoryChange,
+}) {
   const [filterType, setFilterType] = useState("all");
-  const [filterCategory, setFilterCategory] = useState("all");
-  const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("date-desc");
   const [confirmId, setConfirmId] = useState(null);
   const [editTransaction, setEditTransaction] = useState(null);
@@ -67,7 +74,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                   <SelectItem value="expense">Expense</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={filterCategory} onValueChange={setFilterCategory}>
+              <Select value={filterCategory} onValueChange={onCategoryChange}>
                 <SelectTrigger className="w-36">
                   <SelectValue />
                 </SelectTrigger>
@@ -95,7 +102,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
             type="text"
             placeholder="Search by description..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={e => onSearchChange(e.target.value)}
             className="w-full"
           />
         </div>

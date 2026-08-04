@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { Sun, Moon } from 'lucide-react';
 import { Toaster } from '@/components/ui/sonner';
 import Summary from './Summary';
 import TransactionForm from './TransactionForm';
@@ -12,9 +10,16 @@ import TransactionList from './TransactionList';
 import Analytics from './Analytics';
 import AuthPage from './AuthPage';
 import BudgetManager from './BudgetManager';
+import Sidebar from './Sidebar';
+
+const VIEW_TITLES = {
+  dashboard: { title: 'Dashboard', subtitle: 'Track your income and expenses' },
+  transactions: { title: 'Transactions', subtitle: 'Add, search and edit your entries' },
+  budgets: { title: 'Budgets', subtitle: 'Set monthly limits per category' },
+  analytics: { title: 'Analytics', subtitle: 'Charts and exports' },
+};
 
 function App() {
-  const { resolvedTheme, setTheme } = useTheme();
   const [user, setUser] = useState(null);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -23,6 +28,11 @@ function App() {
   const [transactions, setTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [view, setView] = useState('dashboard');
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('all');
+  const [navCollapsed, setNavCollapsed] = useState(
+    () => localStorage.getItem('sidebar:collapsed') === '1'
+  );
 
   const token = () => localStorage.getItem('token');
 
@@ -208,47 +218,32 @@ function App() {
 
   if (!user) return <AuthPage onLogin={handleLogin} />;
 
+  const { title, subtitle } = VIEW_TITLES[view];
+
   return (
     <div className="min-h-screen bg-background">
       <Toaster position="top-right" richColors />
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">Finance Tracker</h1>
-            <p className="text-muted-foreground">Track your income and expenses</p>
+      <Sidebar
+        view={view}
+        onViewChange={setView}
+        search={search}
+        onSearchChange={setSearch}
+        category={category}
+        onCategoryChange={setCategory}
+        transactions={transactions}
+        userEmail={user?.email}
+        onChangePassword={() => { setChangePasswordError(''); setShowChangePassword(true); }}
+        onLogout={handleLogout}
+        collapsed={navCollapsed}
+        onCollapsedChange={setNavCollapsed}
+      />
+
+      <div className={navCollapsed ? 'md:pl-16' : 'md:pl-64'}>
+        <div className="mx-auto max-w-5xl px-4 py-8">
+          <div className="mb-6 pl-12 md:pl-0">
+            <h2 className="text-2xl font-bold">{title}</h2>
+            <p className="text-muted-foreground">{subtitle}</p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant={view === 'dashboard' ? 'default' : 'outline'}
-              onClick={() => setView('dashboard')}
-            >
-              Dashboard
-            </Button>
-            <Button
-              variant={view === 'analytics' ? 'default' : 'outline'}
-              onClick={() => setView('analytics')}
-            >
-              Analytics
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-            >
-              {resolvedTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </Button>
-            <Button variant="outline" onClick={() => { setChangePasswordError(''); setShowChangePassword(true); }}>
-              Change password
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={handleLogout}
-              className="bg-zinc-500 text-white hover:bg-zinc-600 dark:bg-zinc-600 dark:text-zinc-50 dark:hover:bg-zinc-500"
-            >
-              Logout
-            </Button>
-          </div>
-        </div>
 
         <Dialog open={showChangePassword} onOpenChange={(open) => { if (!open) { setShowChangePassword(false); setCurrentPassword(''); setNewPassword(''); setChangePasswordError(''); } }}>
           <DialogContent>
@@ -277,21 +272,37 @@ function App() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        <Summary transactions={transactions} />
-        {view === 'dashboard' ? (
-          <>
-            <TransactionForm onAdd={handleAdd} />
-            <BudgetManager
-              transactions={transactions}
-              budgets={budgets}
-              onSave={handleSaveBudget}
-              onDelete={handleDeleteBudget}
-            />
-            <TransactionList transactions={transactions} onDelete={handleDelete} onEdit={handleEdit} />
-          </>
-        ) : (
-          <Analytics transactions={transactions} />
-        )}
+          <Summary transactions={transactions} />
+
+          {view === 'analytics' ? (
+            <Analytics transactions={transactions} />
+          ) : (
+            <>
+              {(view === 'dashboard' || view === 'transactions') && (
+                <TransactionForm onAdd={handleAdd} />
+              )}
+              {(view === 'dashboard' || view === 'budgets') && (
+                <BudgetManager
+                  transactions={transactions}
+                  budgets={budgets}
+                  onSave={handleSaveBudget}
+                  onDelete={handleDeleteBudget}
+                />
+              )}
+              {(view === 'dashboard' || view === 'transactions') && (
+                <TransactionList
+                  transactions={transactions}
+                  onDelete={handleDelete}
+                  onEdit={handleEdit}
+                  search={search}
+                  onSearchChange={setSearch}
+                  filterCategory={category}
+                  onCategoryChange={setCategory}
+                />
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
