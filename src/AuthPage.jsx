@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Mail, Lock, KeyRound, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, KeyRound, ArrowLeft, Lightbulb, LightbulbOff } from 'lucide-react';
 
 // Server errors come back in English; map them to Japanese so the auth
 // flow never mixes languages, even on failure.
@@ -153,9 +154,33 @@ function TranslatedButton({ en, className, ...props }) {
   );
 }
 
+// Light/dark switch for the auth screen — a bulb rather than a sun/moon, so it
+// reads as a lamp being lit in the sumi-night room. Dark is the default.
+function ThemeToggle() {
+  const { resolvedTheme, setTheme } = useTheme();
+  // resolvedTheme is undefined on the very first render; dark is the default,
+  // so treat "not resolved yet" as dark and the icon never flips on load.
+  const isDark = resolvedTheme !== 'light';
+
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={isDark ? '明かりをつける' : '明かりを消す'}
+      className="absolute right-5 top-5 z-20 rounded-full border border-[var(--sumi-soft)]/25 p-2.5 text-[var(--sumi-soft)] transition-colors hover:border-[var(--shu)] hover:text-[var(--shu)]"
+    >
+      {isDark
+        ? <Lightbulb className="size-4" strokeWidth={1.5} />
+        : <LightbulbOff className="size-4" strokeWidth={1.5} />}
+    </button>
+  );
+}
+
 function Shell({ children }) {
   return (
-    <div className="wabi flex min-h-screen flex-col items-center justify-center px-6 py-16">
+    <div className="wabi relative flex min-h-screen flex-col items-center justify-center px-6 py-16">
+      <ThemeToggle />
       <Enso />
       <div className="relative z-10 flex w-full max-w-xs flex-col items-center gap-10">
         <Mark />

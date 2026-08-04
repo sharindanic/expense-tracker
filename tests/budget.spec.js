@@ -11,7 +11,7 @@ test.describe('Budget Manager', () => {
     await page.getByLabel('メール').fill(`budget_${Date.now()}@example.com`);
     await page.getByLabel('パスワード', { exact: true }).fill(testPassword);
     await page.getByRole('button', { name: '新規登録' }).click();
-    await expect(page.getByRole('heading', { name: 'Finance Tracker' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Spendly' })).toBeVisible();
   });
 
   test('shows empty state initially', async ({ page }) => {

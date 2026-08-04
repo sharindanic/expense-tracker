@@ -25,7 +25,7 @@ test.describe.serial('Authentication', () => {
     await page.getByLabel('パスワード', { exact: true }).fill(testPassword);
     await page.getByRole('button', { name: '新規登録' }).click();
 
-    await expect(page.getByRole('heading', { name: 'Finance Tracker' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Spendly' })).toBeVisible();
   });
 
   test('shows error for duplicate email', async ({ page }) => {
@@ -45,7 +45,7 @@ test.describe.serial('Authentication', () => {
     await page.getByLabel('パスワード', { exact: true }).fill(testPassword);
     await page.getByRole('button', { name: 'ログイン' }).click();
 
-    await expect(page.getByRole('heading', { name: 'Finance Tracker' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Spendly' })).toBeVisible();
   });
 
   test('shows error for wrong password', async ({ page }) => {
@@ -62,7 +62,7 @@ test.describe.serial('Authentication', () => {
     await page.getByLabel('メール').fill(testEmail);
     await page.getByLabel('パスワード', { exact: true }).fill(testPassword);
     await page.getByRole('button', { name: 'ログイン' }).click();
-    await expect(page.getByRole('heading', { name: 'Finance Tracker' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Spendly' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Logout' }).click();
     await expect(page.getByLabel('メール')).toBeVisible();
