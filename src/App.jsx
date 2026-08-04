@@ -240,7 +240,13 @@ function App() {
             <Button variant="outline" onClick={() => { setChangePasswordError(''); setShowChangePassword(true); }}>
               Change password
             </Button>
-            <Button variant="outline" onClick={handleLogout}>Logout</Button>
+            <Button
+              variant="secondary"
+              onClick={handleLogout}
+              className="bg-zinc-500 text-white hover:bg-zinc-600 dark:bg-zinc-600 dark:text-zinc-50 dark:hover:bg-zinc-500"
+            >
+              Logout
+            </Button>
           </div>
         </div>
 
