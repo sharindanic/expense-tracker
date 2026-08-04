@@ -18,9 +18,28 @@ npm test              # Run Playwright E2E tests
 npm run test:ui       # Open Playwright UI
 ```
 
+## Setup
+
+`.env` is gitignored; copy `.env.example` to `.env` before running migrations.
+It holds `DATABASE_URL` (matching the port `docker-compose.yml` publishes, 5432
+by default) and `JWT_SECRET`.
+
+## Running the tests
+
+Stop `npm run dev` first. `playwright.config.js` sets `reuseExistingServer: true`,
+so a running dev server is reused instead of Playwright starting its own — and
+that server lacks `NODE_ENV=test`, which drops the auth rate limit from 1000 to
+20 requests per 15 minutes. The suite then exhausts it partway through and tests
+fail with "element not found" rather than a visible 429.
+
 ## Architecture
 
 Full-stack app: React 19 frontend (Vite) + Express 5 backend + PostgreSQL via Prisma.
+
+Theme is `next-themes` with `attribute="class"`, `defaultTheme="dark"` and
+`enableSystem={false}` (set in `src/main.jsx`) — the app always starts dark
+rather than following the OS. Toggles live in the sidebar footer and, before
+login, at the top-right of `AuthPage`.
 
 ### Frontend (`src/`)
 
@@ -41,7 +60,7 @@ App.jsx
 
 Its "New Transaction" button is deliberately *not* labelled "Add Transaction": Playwright matches accessible names by substring, so that wording collides with the form's `Add` button in `getByRole('button', { name: 'Add' })`.
 
-**`AuthPage.jsx`** — handles login, register, forgot password, and reset password. Uses a `view` state (`'auth' | 'forgot' | 'reset'`) to switch between the three screens. No email service — reset token is shown directly on screen; the forgot-password screen shows a live countdown to its 15-minute expiry. Server error strings are translated to Japanese via a local `ERROR_JA` map so the UI never mixes languages. Submit buttons disable and show a loading state while a request is in flight. Primary buttons (`TranslatedButton`) reveal their English word on hover, rendered as hand-built SVG strokes (`KANJI_LATIN_GLYPHS`/`KanjiLatin`) rather than a system font.
+**`AuthPage.jsx`** — handles login, register, forgot password, and reset password. Uses a `view` state (`'auth' | 'forgot' | 'reset'`) to switch between the three screens. No email service — reset token is shown directly on screen; the forgot-password screen shows a live countdown to its 15-minute expiry. Server error strings are translated to Japanese via a local `ERROR_JA` map so the UI never mixes languages. Submit buttons disable and show a loading state while a request is in flight. Primary buttons (`TranslatedButton`) reveal their English word on hover, rendered as hand-built SVG strokes (`KANJI_LATIN_GLYPHS`/`KanjiLatin`) rather than a system font. A `ThemeToggle` bulb sits at the top-right; it reads `resolvedTheme !== 'light'` so the undefined first render counts as dark and the icon never flips on load.
 
 Styled with a **wabi-sabi (侘寂)** theme around the *kakeibo* (家計簿) idea: washi-paper background, sumi ink, and a single vermilion (朱) accent, with an ensō brush circle and a 記 hanko seal. All labels are Japanese. Design tokens (`--washi`, `--sumi`, `--shu`, grain, ensō, seal, brush-underline input) live under a `.wabi` class in `src/index.css` and are scoped so the rest of the app keeps the neutral shadcn theme. Fonts are Shippori Mincho + Noto Serif JP (self-hosted via fontsource). Supports light and dark (sumi-night) variants.
 
