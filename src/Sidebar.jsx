@@ -131,7 +131,7 @@ function Sidebar({
             <Wallet className="size-4" />
           </div>
           <h1 className={cn('flex-1 truncate text-sm font-bold tracking-wide', collapsed && 'sr-only')}>
-            Finance Tracker
+            Spendly
           </h1>
           <button
             type="button"
