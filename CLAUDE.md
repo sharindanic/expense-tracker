@@ -89,6 +89,7 @@ Styled with a **wabi-sabi (侘寂)** theme around the *kakeibo* (家計簿) idea
 Prisma with PostgreSQL. Three models: `User`, `Transaction`, `Budget`.
 
 `User` has `resetToken` and `resetExpiry` fields for the password reset flow.
+'do not keep the env in repo it self'
 
 The `categories` constant is duplicated in `TransactionForm`, `TransactionList`, and `BudgetManager` — not yet extracted to a shared location.
 
@@ -108,3 +109,5 @@ The `categories` constant is duplicated in `TransactionForm`, `TransactionList`,
 | GET | `/api/budgets` | Yes | Get user's budgets |
 | POST | `/api/budgets` | Yes | Create or update a budget |
 | DELETE | `/api/budgets/:id` | Yes | Delete a budget |
+
+
